@@ -6,6 +6,9 @@ BRAND_MARK = "GO"
 PHONE = "0508-202-4719"
 PHONE_DISPLAY = "0508-202-4719"
 
+# IndexNow 키 (빙·네이버·얀덱스 즉시 색인 통보). 빌드 시 루트에 <KEY>.txt 키파일 생성.
+INDEXNOW_KEY = "9ab48d34df28a1cc39f9cbd7fdda6bb1"
+
 # 대표 행정동 10곳 (slug, 한글명) — 내부링크·메뉴 공용
 # 번호 행정동(군포1·2동→군포동, 산본1·2동→산본동)은 대표 동으로 통합한다.
 AREAS = [

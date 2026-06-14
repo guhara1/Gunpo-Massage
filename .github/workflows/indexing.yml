@@ -1,0 +1,48 @@
+name: 색인 자동 통보 (IndexNow + Google)
+
+# 콘텐츠가 바뀐 푸시마다 빌드 후 검색엔진에 즉시 색인을 통보합니다.
+# - IndexNow: 빙·네이버·얀덱스 (별도 시크릿 불필요, 사이트에 키파일만 게시되면 됨)
+# - 구글: GOOGLE_SERVICE_ACCOUNT 시크릿(서비스 계정 JSON)이 있을 때만 실행
+#
+# Cloudflare Pages가 배포하는 "프로덕션 브랜치"에 맞춰 아래 branches 를 조정하세요.
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'content/**'
+      - 'build.py'
+      - '**/index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexing-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 사이트맵·RSS 재생성
+        run: python3 build.py
+
+      - name: IndexNow 제출 (빙·네이버·얀덱스)
+        run: python3 tools/indexnow.py
+
+      - name: 구글 Indexing API (서비스 계정 시크릿이 있을 때만)
+        if: ${{ env.GOOGLE_SERVICE_ACCOUNT != '' }}
+        run: |
+          pip install --quiet google-auth requests
+          printf '%s' "$GOOGLE_SERVICE_ACCOUNT" > /tmp/sa.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
+          python3 tools/google_indexing.py

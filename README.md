@@ -53,10 +53,63 @@ python3 build.py
 
 - `content/site.py`의 `BASE_URL`을 실제 도메인으로 변경한 뒤 `python3 build.py` 재실행.
 
+## 색인(인덱싱) 최속화
+
+`python3 build.py` 실행 시 다음 색인 자산이 자동 생성됩니다.
+
+| 파일 | 용도 |
+|------|------|
+| `sitemap.xml` | `lastmod`·`changefreq`·`priority` 포함 (색인 신선도 신호) |
+| `rss.xml` | 네이버 서치어드바이저 RSS 수집·빠른 색인용 |
+| `robots.txt` | 전체 허용 + Yeti(네이버)·Googlebot·bingbot 명시, sitemap·rss 링크 |
+| `<INDEXNOW_KEY>.txt` | IndexNow 소유 증명 키파일(루트 게시) |
+
+메인페이지 `<head>`에 RSS·sitemap `<link>`와 네이버 인증 메타태그가 들어갑니다.
+
+### 1) IndexNow — 빙·네이버·얀덱스 즉시 통보 (시크릿 불필요)
+
+키는 `content/site.py`의 `INDEXNOW_KEY`. 사이트에 키파일이 게시되어 있으면 즉시 동작.
+
+```bash
+python3 tools/indexnow.py                         # 사이트맵 전체 제출
+python3 tools/indexnow.py https://gunpo-massage.pages.dev/gunpo/sanbon-dong-chuljangmassage/  # 특정 글
+```
+
+### 2) 구글 Indexing API — 구글 즉시 통보 (서비스 계정 필요)
+
+구글은 IndexNow 미참여. 최초 1회 설정:
+1. Google Cloud → **Indexing API** 사용 설정 → 서비스 계정 JSON 키 발급
+2. **서치콘솔**에서 서비스 계정 이메일을 사이트 **소유자**로 추가
+3. `pip install google-auth requests`
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=/path/service-account.json
+python3 tools/google_indexing.py
+```
+
+### 3) GitHub Actions 자동화 — 글 올릴 때마다 자동 통보
+
+`.github/workflows/indexing.yml` 이 `main`/`master` 푸시(콘텐츠 변경) 시 빌드 후
+IndexNow를 자동 제출합니다. 구글까지 자동화하려면 리포지토리 시크릿
+`GOOGLE_SERVICE_ACCOUNT` 에 서비스 계정 JSON 전체를 넣으세요.
+Cloudflare Pages 프로덕션 브랜치에 맞춰 워크플로의 `branches` 를 조정하세요.
+
+> 참고: 구글·빙의 익명 `sitemap ping` 엔드포인트는 폐지되었습니다(`tools/ping_sitemap.py`
+> 는 참고용). 빠른 색인은 IndexNow + Indexing API + 서치콘솔/서치어드바이저
+> 사이트맵 1회 등록 조합이 가장 효과적입니다.
+
+### 최초 수동 등록 (1회)
+
+- **네이버 서치어드바이저**: 사이트 등록 → `sitemap.xml`·`rss.xml` 제출 (메인 메타태그로 소유확인 완료됨)
+- **구글 서치콘솔**: 속성 추가 → `sitemap.xml` 제출
+- **빙 웹마스터도구**: 사이트 추가 → 사이트맵 제출 (이후 IndexNow 자동)
+
 ## 디렉터리
 
 ```
-build.py            빌드 스크립트
+build.py            빌드 스크립트(HTML·sitemap·rss·robots·IndexNow 키파일 생성)
 content/            페이지 정의 (site, main, areas, stations, info, pricing)
 assets/             style.css, nav.js, 파비콘/OG 이미지
+tools/              indexnow.py · google_indexing.py · ping_sitemap.py
+.github/workflows/  indexing.yml (푸시 시 색인 자동 통보)
 ```
