@@ -7,7 +7,7 @@ Indexing API(urlNotifications:publish)를 사용한다.
 준비 (최초 1회):
   1) Google Cloud 콘솔에서 프로젝트 생성 → "Indexing API" 사용 설정.
   2) 서비스 계정 생성 → JSON 키 다운로드.
-  3) 구글 서치콘솔에서 해당 사이트(gunpo-massage.pages.dev)의
+  3) 구글 서치콘솔에서 해당 사이트(gunpo-massage.netlify.app)의
      "소유자"로 서비스 계정 이메일(...@....iam.gserviceaccount.com)을 추가.
   4) 의존 패키지 설치:  pip install google-auth requests
 
@@ -18,7 +18,7 @@ Indexing API(urlNotifications:publish)를 사용한다.
   python3 tools/google_indexing.py
 
   # 특정 URL만 통보
-  python3 tools/google_indexing.py https://gunpo-massage.pages.dev/gunpo/sanbon-dong-chuljangmassage/
+  python3 tools/google_indexing.py https://gunpo-massage.netlify.app/gunpo/sanbon-dong-chuljangmassage/
 
 참고: 공식적으로 Indexing API는 JobPosting·BroadcastEvent 구조화 페이지를
 권장 대상으로 안내합니다. 일반 페이지 제출은 정책을 확인한 뒤 사용하세요.

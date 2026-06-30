@@ -1,0 +1,18 @@
+# Netlify 배포 설정 — main 브랜치 푸시(머지)마다 자동 빌드·배포
+[build]
+  command = "python3 build.py"
+  publish = "."
+
+[build.environment]
+  PYTHON_VERSION = "3.12"
+
+# 정적 사이트 캐싱: HTML은 항상 최신, 정적 자산은 장기 캐시
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

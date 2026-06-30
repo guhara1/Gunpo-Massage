@@ -1,11 +1,21 @@
 User-agent: *
 Allow: /
+Disallow:
+
 User-agent: Yeti
 Allow: /
+
 User-agent: Googlebot
 Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
 User-agent: bingbot
 Allow: /
 
-Sitemap: https://gunpo-massage.pages.dev/sitemap.xml
-Sitemap: https://gunpo-massage.pages.dev/rss.xml
+User-agent: Daumoa
+Allow: /
+
+Sitemap: https://gunpo-massage.netlify.app/sitemap.xml
+Sitemap: https://gunpo-massage.netlify.app/rss.xml

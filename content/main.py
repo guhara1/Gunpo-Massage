@@ -13,6 +13,7 @@ _STATION_CARDS = "".join(
 )
 
 _JSONLD = f"""<meta name="naver-site-verification" content="afb3727220fa34049d082286412ec45de75baf89">
+<meta name="naver-site-verification" content="bc297c8b5e8e2e84de1f339818b42d83056030b2" />
 <link rel="preload" as="image" href="/assets/hero.webp" type="image/webp" fetchpriority="high">
 <script type="application/ld+json">
 {{
@@ -30,55 +31,9 @@ _JSONLD = f"""<meta name="naver-site-verification" content="afb3727220fa34049d08
   }}
 }}
 </script>
-<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {{
-      "@type": "Question",
-      "name": "군포시 전지역 방문이 가능한가요?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "군포동, 산본동, 금정동을 비롯한 대표 행정동 10곳을 기준으로 군포시 전지역을 안내합니다. 대야동·송부동처럼 외곽 주거권은 차량 이동 기준으로 방문 가능 여부를 확인합니다."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "군포1동·산본1동처럼 번호 동은 왜 페이지가 따로 없나요?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "군포1동·군포2동은 군포동, 산본1동·산본2동은 산본동 대표 페이지로 통합했습니다. 같은 생활권을 나눠 반복 설명하지 않기 위해 중복 페이지를 만들지 않습니다."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "금정역은 1호선·4호선 환승역인데 노선별 페이지가 있나요?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "금정역 출장마사지 페이지는 1개만 운영합니다. 1호선·4호선 노선별, 방향별로 페이지를 나누지 않고 환승역 특징과 주변 생활권을 한 페이지에서 함께 안내합니다."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "외곽 주거권은 추가 이동비가 있나요?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "대야동, 송부동처럼 차량 이동 거리가 있는 지역은 추가 이동비가 발생할 수 있으며, 예약 시 총비용으로 먼저 안내합니다. 산본동·금정동 등 도심 생활권은 대부분 기본 요금으로 안내됩니다."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "지하철역 주변도 예약할 수 있나요?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "금정역, 산본역, 수리산역, 대야미역, 군포역, 당정역 인근은 역세권 안내 페이지에서 주변 생활권과 함께 확인할 수 있습니다."
-      }}
-    }}
-  ]
-}}
-</script>
 """
+# 참고: FAQPage 구조화 데이터는 build.py가 본문의 .faq-item 블록에서 자동 생성한다.
+# (메인뿐 아니라 모든 페이지에 동일 규칙으로 적용 — 수기 중복 정의를 제거함)
 
 _HERO = f"""<section class="hero">
   <div class="hero-inner hero-grid">
