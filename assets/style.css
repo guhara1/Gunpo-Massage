@@ -399,6 +399,12 @@ strong { color: var(--gold-soft); font-weight: 700; }
   background: linear-gradient(180deg, #13203a, var(--panel-2));
 }
 
+/* 관련 지역·역세권 내부링크 블록 */
+.related h3 { margin: 22px 0 4px; }
+.related h3:first-of-type { margin-top: 14px; }
+.related .card-grid { margin-top: 10px; }
+.related > p:last-child { margin-top: 16px; color: var(--text-dim); font-size: 0.93rem; }
+
 /* 안내 박스 */
 .info-box {
   background: var(--panel-2); border: 1px solid var(--line-gold);

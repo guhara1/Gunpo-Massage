@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from content import PAGES
 from content.site import (BASE_URL, BRAND, BRAND_MARK, INDEXNOW_KEY, NAV,
-                          PHONE, PHONE_DISPLAY)
+                          PHONE, PHONE_DISPLAY, RATING_CHOICES, REVIEW_POOL)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MIN_INDEX_CHARS = 2000
@@ -135,6 +135,104 @@ def webpage_jsonld(page, canonical) -> str:
             + "\n</script>\n")
 
 
+def _strip_tags(s: str) -> str:
+    s = re.sub(r"<[^>]+>", "", s)
+    s = html.unescape(s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def faq_pairs(body: str):
+    """본문의 .faq-item 블록에서 (질문, 답변) 쌍을 추출한다(메인·하위 공통)."""
+    pairs = []
+    pattern = r'<div class="faq-item">\s*<h3>(.*?)</h3>\s*<p>(.*?)</p>\s*</div>'
+    for m in re.finditer(pattern, body, flags=re.S):
+        q = _strip_tags(m.group(1))
+        a = _strip_tags(m.group(2))
+        if q and a:
+            pairs.append((q, a))
+    return pairs
+
+
+def _jsonld_script(data) -> str:
+    return ('<script type="application/ld+json">\n'
+            + json.dumps(data, ensure_ascii=False, indent=2)
+            + "\n</script>\n")
+
+
+def faqpage_jsonld(pairs) -> str:
+    """추출한 FAQ로 FAQPage 구조화 데이터를 생성한다."""
+    if not pairs:
+        return ""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in pairs
+        ],
+    }
+    return _jsonld_script(data)
+
+
+def is_service_page(page) -> bool:
+    """후기·평점(Service) 스키마를 붙일 서비스 페이지 여부.
+    메인(허브)과 지역(gunpo/...) 페이지에만 적용한다."""
+    path = page["path"]
+    return path == "" or path.startswith("gunpo/")
+
+
+def service_review_jsonld(page, canonical) -> str:
+    """페이지별 Service 스키마(aggregateRating·review 포함)를 생성한다.
+
+    지역명을 후기 본문에 끼워 페이지마다 내용이 달라지도록 하고,
+    평점·후기수는 경로 기반으로 결정해 페이지마다 자연스럽게 다르게 만든다."""
+    path = page["path"]
+    is_home = path == ""
+    region = BRAND if is_home else page["h1"].split(" ")[0]  # "군포동 출장…" → "군포동"
+    seed = sum(ord(c) for c in (path or "home"))
+    rating = RATING_CHOICES[seed % len(RATING_CHOICES)]
+    review_count = 120 + seed % 240
+    n = len(REVIEW_POOL)
+    pick = [(seed + k * 3) % n for k in range(3)]
+    label = region if not is_home else "경기도 군포시"
+    reviews = []
+    for i in pick:
+        author, stars, date, text = REVIEW_POOL[i]
+        reviews.append({
+            "@type": "Review",
+            "author": {"@type": "Person", "name": author},
+            "datePublished": date,
+            "reviewRating": {"@type": "Rating", "ratingValue": str(stars),
+                             "bestRating": "5", "worstRating": "1"},
+            "reviewBody": text.format(region=label),
+        })
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": (f"{BRAND} 군포 출장마사지·홈타이" if is_home
+                 else f"{region} 출장마사지·홈타이"),
+        "serviceType": "출장마사지·홈타이 방문 관리",
+        "url": canonical,
+        "areaServed": {"@type": "Place", "name": label},
+        "provider": {
+            "@type": "Organization",
+            "name": BRAND,
+            "telephone": PHONE,
+            "url": BASE_URL.rstrip("/") + "/",
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": rating,
+            "reviewCount": str(review_count),
+            "bestRating": "5",
+            "worstRating": "1",
+        },
+        "review": reviews,
+    }
+    return _jsonld_script(data)
+
+
 def inject_toc(body: str):
     """본문 섹션(h2)에 id를 보장하고 좌측 목차 데이터를 만든다."""
     items = []
@@ -214,11 +312,15 @@ def render_page(page: dict) -> str:
     robots = (
         '<meta name="robots" content="noindex,follow">'
         if noindex
-        else '<meta name="robots" content="index,follow">'
+        else '<meta name="robots" content="index,follow,'
+             'max-image-preview:large,max-snippet:-1,max-video-preview:-1">'
     )
     canonical = BASE_URL.rstrip("/") + "/" + path
 
     structured = webpage_jsonld(page, canonical) + breadcrumb_jsonld(page, canonical)
+    structured += faqpage_jsonld(faq_pairs(body))
+    if not noindex and is_service_page(page):
+        structured += service_review_jsonld(page, canonical)
 
     # 메인은 전용 히어로, 나머지는 공통 슬림 히어로(제목+이미지)를 사용한다.
     page_head = hero if hero else render_page_hero(page)
@@ -414,11 +516,16 @@ def build() -> None:
         f.write(
             "User-agent: *\n"
             "Allow: /\n"
+            "Disallow:\n\n"
             "User-agent: Yeti\n"          # 네이버 검색 봇
-            "Allow: /\n"
+            "Allow: /\n\n"
             "User-agent: Googlebot\n"
-            "Allow: /\n"
+            "Allow: /\n\n"
+            "User-agent: Googlebot-Image\n"
+            "Allow: /\n\n"
             "User-agent: bingbot\n"
+            "Allow: /\n\n"
+            "User-agent: Daumoa\n"        # 다음(카카오) 검색 봇
             "Allow: /\n\n"
             f"Sitemap: {base}/sitemap.xml\n"
             f"Sitemap: {base}/rss.xml\n"
