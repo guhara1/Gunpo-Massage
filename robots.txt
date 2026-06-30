@@ -7,5 +7,5 @@ Allow: /
 User-agent: bingbot
 Allow: /
 
-Sitemap: https://gunpo-massage.pages.dev/sitemap.xml
-Sitemap: https://gunpo-massage.pages.dev/rss.xml
+Sitemap: https://gunpo-massage.netlify.app/sitemap.xml
+Sitemap: https://gunpo-massage.netlify.app/rss.xml

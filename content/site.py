@@ -1,5 +1,5 @@
 # 사이트 공통 설정
-BASE_URL = "https://gunpo-massage.pages.dev"
+BASE_URL = "https://gunpo-massage.netlify.app"
 
 BRAND = "간다GO"
 BRAND_MARK = "GO"

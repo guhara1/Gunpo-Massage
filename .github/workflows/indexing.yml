@@ -4,7 +4,7 @@ name: 색인 자동 통보 (IndexNow + Google)
 # - IndexNow: 빙·네이버·얀덱스 (별도 시크릿 불필요, 사이트에 키파일만 게시되면 됨)
 # - 구글: GOOGLE_SERVICE_ACCOUNT 시크릿(서비스 계정 JSON)이 있을 때만 실행
 #
-# Cloudflare Pages가 배포하는 "프로덕션 브랜치"에 맞춰 아래 branches 를 조정하세요.
+# Netlify가 배포하는 "프로덕션 브랜치"에 맞춰 아래 branches 를 조정하세요.
 on:
   push:
     branches: [main, master]

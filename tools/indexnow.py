@@ -10,7 +10,7 @@ IndexNow 단일 엔드포인트(api.indexnow.org)에 URL을 제출하면 참여 
   python3 tools/indexnow.py
 
   # 특정 URL만 제출(글 새로 올렸을 때)
-  python3 tools/indexnow.py https://gunpo-massage.pages.dev/gunpo/sanbon-dong-chuljangmassage/
+  python3 tools/indexnow.py https://gunpo-massage.netlify.app/gunpo/sanbon-dong-chuljangmassage/
 
 표준 라이브러리만 사용한다(외부 패키지 불필요).
 """
